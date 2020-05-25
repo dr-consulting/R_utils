@@ -56,3 +56,12 @@ lavaan_moderated_mediation_single_categorical_y <- function(data, y_var, x_var, 
   return(fit)
 }
 
+
+#' Takes in a vector of standardized loadings and returns Coefficient H 
+#' Coefficient H is a measure of construct reliability
+H_calculator <- function(l){
+  numerator <- sum(l^2/(1-l^2))
+  denominator <- 1 + numerator
+  H <- numerator/denominator
+  print(paste("Coefficient H =", round(H, digits = 3)))
+}
