@@ -35,8 +35,7 @@ cumulativemodelfit <- function(y_var, data, links=c("logit", "probit", "cloglog"
 
 
 #' Lightweight wrapper around brms binomial model
-brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, 
-                                  out_dir, out_base_name){
+brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name){
     require(glue)
     require(brms)
     form <- glue("{y_var} ~ {rhs}")
@@ -47,7 +46,7 @@ brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, contro
                control=control_list)
     print(fit)
     
-    sink(glue("{out_dir}/{out_base_name}_binomial_model_summary_{Sys.Date()}.txt"))
+    sink(glue("{out_dir}/{out_base_name}_{y_var}_binomial_model_summary_{Sys.Date()}.txt"))
     print(fit, digits = 5)
     sink()
     
@@ -56,7 +55,7 @@ brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, contro
 
 
 #' Lighweight wrapper around brms poisson model
-brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors){
+brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name){
     require(glue)
     require(brms)
     form <- glue("{y_var} ~ {rhs}")
@@ -67,7 +66,7 @@ brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
                control=control_list)
     print(fit)
     
-    sink(glue("{out_dir}/{out_base_name}_poisson_model_summary_{Sys.Date()}.txt"))
+    sink(glue("{out_dir}/{out_base_name}_{y_var}_poisson_model_summary_{Sys.Date()}.txt"))
     print(fit, digits = 5)
     sink()
     
@@ -76,23 +75,25 @@ brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
 
 
 #' Lightweight wrapper around brms ordinal model
-brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors){
+brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name){
     require(glue)
     require(brms)
     
     # find the appropriate cumulative link function settings: 
-    link_form <- glue("{y_var} ~ 1")
-    cum_link_list <- cumulativemodelfit(link_form, data)
+    cum_link_list <- cumulativemodelfit(y_var, data=data)
     
     form <- glue("{y_var} ~ {rhs}")
     
     model <- bf(form)+cumulative(link = cum_link_list$link[[1]], threshold = cum_link_list$threshold[[1]])
     
+    # repetitive for now but easiest fix: 
+    data[[y_var]] <- ordered(data[[y_var]])
+    
     fit <- brm(model, data=data, prior=priors, iter=iter, warmup=warmup, chains=chains, cores=chains, 
                control=control_list)
     print(fit)
     
-    sink(glue("{out_dir}/{out_base_name}_ordinal_model_summary_{Sys.Date()}.txt"))
+    sink(glue("{out_dir}/{out_base_name}_{y_var}_ordinal_model_summary_{Sys.Date()}.txt"))
     print(fit, digits = 5)
     sink()
     
@@ -106,7 +107,7 @@ estimate_intercept_in_logits <- function(y_var, y_hit, data, cond_var=NULL, cond
        print("Did not pass both a conditional value and variable. Estimating intercept in logits for grand mean.")
        y_obs <- data[[y_var]] 
     }
-    else if(is.null(cond_var) & is.null(cond_value)){ 
+    else if(!is.null(cond_var) & !is.null(cond_value)){ 
         y_obs <- data[[y_var]][data[[cond_var]] == cond_value]
     }
     else { 
