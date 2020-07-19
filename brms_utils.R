@@ -98,3 +98,19 @@ brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
     
     return(fit)
 }
+
+
+#' generates a grand-intercept to "ground" the time 1 model and speed up estimate times
+estimate_intercept_in_logits <- function(y_var, y_hit, data, cond_var=NULL, cond_value=NULL){
+    if(is.null(cond_var) | is.null(cond_value)){
+       print("Did not pass both a conditional value and variable. Estimating intercept in logits for grand mean.")
+       y_obs <- data[[y_var]] 
+    }
+    else { 
+        y_obs <- data[[y_var]][data[[cond_var]] == cond_value]
+    }
+    
+    y_prop <- sum(y_obs == y_hit, na.rm = TRUE)/sum(!is.na(y_obs))
+    y_logit <- log(y_prop/(1-y_prop))
+    return(y_logit)
+}
