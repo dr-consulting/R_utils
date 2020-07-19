@@ -27,6 +27,7 @@ cumulativemodelfit <- function(y_var, data, links=c("logit", "probit", "cloglog"
             ")\n", sep="")
     }
     invisible(llks)
+    # save optimal settings for use in defining model priors
     outputs <- list(link = links[bestfit %% length(links)], 
                     threshold = thresholds[1 + bestfit %/% length(thresholds)])
     return(outputs)
