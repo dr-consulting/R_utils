@@ -42,11 +42,11 @@ brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, contro
     
     model <- bf(form)+bernoulli()
     
-    fit <- brm(model, data=data, priors=prios iter=iter, warmup=warmup, chains=chains, cores=chains, 
+    fit <- brm(model, data=data, prior=priors, iter=iter, warmup=warmup, chains=chains, cores=chains, 
                control=control_list)
     print(fit)
     
-    sink(glue("{out_dir}/{out_base_name}_model_summary_{Sys.Date()}.txt"))
+    sink(glue("{out_dir}/{out_base_name}_binomial_model_summary_{Sys.Date()}.txt"))
     print(fit, digits = 5)
     sink()
     
@@ -62,11 +62,11 @@ brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
     
     model <- bf(form)+poisson()
     
-    fit <- brm(model, data=data, priors=prios iter=iter, warmup=warmup, chains=chains, cores=chains, 
+    fit <- brm(model, data=data, prior=priors, iter=iter, warmup=warmup, chains=chains, cores=chains, 
                control=control_list)
     print(fit)
     
-    sink(glue("{out_dir}/{out_base_name}_model_summary_{Sys.Date()}.txt"))
+    sink(glue("{out_dir}/{out_base_name}_poisson_model_summary_{Sys.Date()}.txt"))
     print(fit, digits = 5)
     sink()
     
@@ -87,11 +87,11 @@ brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
     
     model <- bf(form)+cumulative(link = cum_link_list$link[[1]], threshold = cum_link_list$threshold[[1]])
     
-    fit <- brm(model, data=data, priors=prios iter=iter, warmup=warmup, chains=chains, cores=chains, 
+    fit <- brm(model, data=data, prior=priors, iter=iter, warmup=warmup, chains=chains, cores=chains, 
                control=control_list)
     print(fit)
     
-    sink(glue("{out_dir}/{out_base_name}_model_summary_{Sys.Date()}.txt"))
+    sink(glue("{out_dir}/{out_base_name}_ordinal_model_summary_{Sys.Date()}.txt"))
     print(fit, digits = 5)
     sink()
     
