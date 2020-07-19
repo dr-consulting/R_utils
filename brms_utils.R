@@ -106,8 +106,11 @@ estimate_intercept_in_logits <- function(y_var, y_hit, data, cond_var=NULL, cond
        print("Did not pass both a conditional value and variable. Estimating intercept in logits for grand mean.")
        y_obs <- data[[y_var]] 
     }
-    else { 
+    else if(is.null(cond_var) & is.null(cond_value)){ 
         y_obs <- data[[y_var]][data[[cond_var]] == cond_value]
+    }
+    else { 
+        warning("Incorrect settings passed to function")
     }
     
     y_prop <- sum(y_obs == y_hit, na.rm = TRUE)/sum(!is.na(y_obs))
