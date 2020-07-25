@@ -35,7 +35,8 @@ cumulativemodelfit <- function(y_var, data, links=c("logit", "probit", "cloglog"
 
 
 #' Lightweight wrapper around brms binomial model
-brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name){
+brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, 
+                                  out_base_name) {
     require(glue)
     require(brms)
     form <- glue("{y_var} ~ {rhs}")
@@ -55,7 +56,7 @@ brms_binomial_wrapper <- function(y_var, rhs, data, iter, warmup, chains, contro
 
 
 #' Lighweight wrapper around brms poisson model
-brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name){
+brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name) {
     require(glue)
     require(brms)
     form <- glue("{y_var} ~ {rhs}")
@@ -75,7 +76,7 @@ brms_poisson_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
 
 
 #' Lightweight wrapper around brms ordinal model
-brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name){
+brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control_list, priors, out_dir, out_base_name) {
     require(glue)
     require(brms)
     
@@ -103,7 +104,7 @@ brms_ordinal_wrapper <- function(y_var, rhs, data, iter, warmup, chains, control
 
 #' generates a grand-intercept to "ground" the time 1 model and speed up estimate times
 estimate_intercept_in_logits <- function(y_var, y_hit, data, cond_var=NULL, cond_value=NULL){
-    if(is.null(cond_var) | is.null(cond_value)){
+    if(is.null(cond_var) | is.null(cond_value)) {
        print("Did not pass both a conditional value and variable. Estimating intercept in logits for grand mean.")
        y_obs <- data[[y_var]] 
     }
@@ -118,3 +119,24 @@ estimate_intercept_in_logits <- function(y_var, y_hit, data, cond_var=NULL, cond
     y_logit <- log(y_prop/(1-y_prop))
     return(y_logit)
 }
+
+
+#' Lightweight wrapper around brms categorical model
+brms_categorical_wrapper <- function(y_var, rhs, ref_grp, data, iter, warmup, chains, control_list, priors, out_dir, 
+                                     out_base_name) {
+    require(glue)
+    require(brms)
+    form <- glue("{y_var} ~ {rhs}")
+    
+    model <- bf(form)+categorical(refcat = ref_grp)
+    
+    fit <- brm(model, data=data, prior=priors, iter=iter, warmup=warmup, chains=chains, cores=chains, 
+               control=control_list)
+    print(fit)
+    
+    sink(glue("{out_dir}/{out_base_name}_{y_var}_categorical_model_summary_{Sys.Date()}.txt"))
+    print(fit, digits = 5)
+    sink()
+    
+    return(fit)
+} 
